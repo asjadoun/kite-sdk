@@ -7,34 +7,48 @@ import org.apache.avro.generic.{GenericRecord, GenericRecordBuilder}
 import org.kitesdk.data._
 import org.kitesdk.data.spi.JsonUtil
 
-import java.util
-
 object AppReadJsonKiteSDK {
 
+  def prepareDataset(count: Int, schema: Schema): List[GenericRecord] = {
+    def prepare(idx: Int): GenericRecord = {
+      val builder = new GenericRecordBuilder(schema)
+      builder.set("myFieldA", 100 + idx)
+      builder.set("myFieldB", s"anil#$idx")
+      builder.build()
+    }
+    (1 until count).map(prepare).to(List)
+  }
+
+  def writeToDataset[E](records: List[E], dataset: Dataset[E]) = {
+    val writer: DatasetWriter[E] = dataset.newWriter()
+    try{
+      records.foreach(writer.write)
+    } finally {
+      writer.close()
+    }
+  }
+
+  def readDataset[E](dataset: Dataset[E]): List[E] = {
+    val reader: DatasetReader[E] = dataset.newReader()
+    try {
+      import scala.jdk.CollectionConverters._
+      reader.iterator().asScala.to(List)
+    } finally {
+      reader.close()
+    }
+  }
+
   def main(args: Array[String]): Unit = {
-    //    System.setProperty("hadoop.home.dir", "/")
 
-    val json: JsonNode = JsonUtil.parse(Resource.getAsStream("single.json"))
-    val inferSchema: Schema = JsonUtil.inferSchema(json, "mySchema")
+//    val parser = new Schema.Parser()
+//    val schema: Schema = parser.parse(Resource.getAsStream("user-schema.avsc"))
 
-    val userSchema: String = """{
-                               |  "name": "MyClass",
-                               |  "type": "record",
-                               |  "namespace": "com.savant.avro",
-                               |  "fields": [
-                               |    {
-                               |      "name": "myFieldA",
-                               |      "type": "int"
-                               |    },
-                               |    {
-                               |      "name": "myFieldB",
-                               |      "type": "string"
-                               |    }
-                               |  ]
-                               |}""".stripMargin
+    val recordCount = 5
+//    val format = Formats.AVRO
+    val format = Formats.PARQUET
 
-    val parser = new Schema.Parser()
-    val schema: Schema = parser.parse(userSchema)
+    val json: JsonNode = JsonUtil.parse(Resource.getAsStream("test-data-multi-line.json"))
+    val inferSchema: Schema = JsonUtil.inferSchema(json, s"${format.getName}.schema")
 
     val partitionStrategy: PartitionStrategy = new PartitionStrategy.Builder()
       .identity("myFieldA")
@@ -43,15 +57,10 @@ object AppReadJsonKiteSDK {
     val descriptor: DatasetDescriptor = new DatasetDescriptor.Builder()
       .schema(inferSchema)
       .partitionStrategy(partitionStrategy)
-      //          .format(Formats.PARQUET)
-      .format(Formats.AVRO)
+      .format(format)
       .build()
 
-//    val uri = "dataset:file://C:/Users/Anil/storage/mynamespace/mydata/parquest?absolute=true"
-    val uri = "dataset:file://C:/Users/Anil/storage/mynamespace/mydata/avro?absolute=true"
-//   val uri = "dataset:file:/Users/asingh/storage/mynamespace/mydata/parquest?absolute=true"
-//    val uri = "dataset:file:/Users/asingh/storage/mynamespace/mydata/avro?absolute=true"
-
+    val uri = s"dataset:file:./build/storage/mynamespace/mydata/${format.getName}?absolute=false"
     val exists: Boolean = Datasets.exists(uri)
 
     val partitionedData: Dataset[GenericRecord] = {
@@ -59,22 +68,11 @@ object AppReadJsonKiteSDK {
       else Datasets.create(uri, descriptor, classOf[GenericRecord])
     }
 
-    (1 until 6).foreach { idx =>
-      val builder = new GenericRecordBuilder(partitionedData.getDescriptor.getSchema)
-      builder.set("myFieldA", 100 + idx)
-      builder.set("myFieldB", s"anil#$idx")
+    val records = prepareDataset(recordCount, partitionedData.getDescriptor.getSchema)
 
-      val writer: DatasetWriter[GenericRecord] = partitionedData.newWriter()
-      writer.write(builder.build())
-      writer.close()
-    }
+    writeToDataset[GenericRecord](records, partitionedData)
 
-    val reader: DatasetReader[GenericRecord] = partitionedData.newReader()
-    import scala.jdk.CollectionConverters._
-    val list: util.Iterator[GenericRecord] = reader.iterator()
-    list.asScala.foreach(println)
-    reader.close()
-
-    println(descriptor.getSchema)
+    val res = readDataset[GenericRecord](partitionedData.getDataset)
+    res.foreach(println)
   }
 }
