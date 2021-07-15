@@ -6,6 +6,7 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericRecord, GenericRecordBuilder}
 import org.kitesdk.data._
 import org.kitesdk.data.spi.JsonUtil
+import org.kitesdk.data.spi.filesystem.{CSVProperties, CSVUtil}
 
 object AppReadJsonKiteSDK {
 
@@ -47,15 +48,19 @@ object AppReadJsonKiteSDK {
 //    val format = Formats.AVRO
     val format = Formats.PARQUET
 
+    val inferCsvSchema = CSVUtil.inferSchema(s"${format.getName}.schema", Resource.getAsStream("test-data.csv"), new CSVProperties.Builder().hasHeader.delimiter(",").build())
+
     val json: JsonNode = JsonUtil.parse(Resource.getAsStream("test-data-multi-line.json"))
-    val inferSchema: Schema = JsonUtil.inferSchema(json, s"${format.getName}.schema")
+    val inferJsonSchema: Schema = JsonUtil.inferSchema(json, s"${format.getName}.schema")
+
+    val schema = inferCsvSchema
 
     val partitionStrategy: PartitionStrategy = new PartitionStrategy.Builder()
       .identity("myFieldA")
       .build()
 
     val descriptor: DatasetDescriptor = new DatasetDescriptor.Builder()
-      .schema(inferSchema)
+      .schema(schema)
       .partitionStrategy(partitionStrategy)
       .format(format)
       .build()
