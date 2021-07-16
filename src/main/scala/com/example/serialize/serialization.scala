@@ -28,30 +28,19 @@ object serialization {
   }
 
   def fromJsonToAvro(json: String, schema: Schema): Array[Byte] = {
-    val inputStream = new ByteArrayInputStream(json.getBytes)
     try {
-      val dataInputStream = new DataInputStream(inputStream)
-
+      val genericRecord = fromJsonToGenericRecord(json, schema)
+      val outputStream = new ByteArrayOutputStream
       try {
-        val jsonDecoder = DecoderFactory.get.jsonDecoder(schema, dataInputStream)
-        val jsonReader = new GenericDatumReader[GenericRecord](schema)
-        val jsonRecord = jsonReader.read(null, jsonDecoder)
-        val outputStream = new ByteArrayOutputStream
-        try {
-          val binaryEncoder = EncoderFactory.get.binaryEncoder(outputStream, null)
-          val jsonWriter = new GenericDatumWriter[GenericRecord](schema)
-          jsonWriter.write(jsonRecord, binaryEncoder)
-          binaryEncoder.flush()
+        val binaryEncoder = EncoderFactory.get.binaryEncoder(outputStream, null)
+        val jsonWriter = new GenericDatumWriter[GenericRecord](schema)
+        jsonWriter.write(genericRecord, binaryEncoder)
+        binaryEncoder.flush()
 
-          outputStream.toByteArray
-        } finally {
-          outputStream.close()
-        }
+        outputStream.toByteArray
       } finally {
-        dataInputStream.close()
+        outputStream.close()
       }
-    } finally {
-      inputStream.close()
     }
   }
 
