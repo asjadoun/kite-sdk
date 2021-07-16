@@ -20,7 +20,7 @@ object AppReadJsonKiteSDK {
     (1 until count).map(prepare).to(List)
   }
 
-  def writeToDataset[E](records: List[E], dataset: Dataset[E]) = {
+  def writeToDataset[E](records: List[E], dataset: Dataset[E]): Unit = {
     val writer: DatasetWriter[E] = dataset.newWriter()
     try{
       records.foreach(writer.write)
