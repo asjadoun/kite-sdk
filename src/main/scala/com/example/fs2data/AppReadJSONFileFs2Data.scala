@@ -14,9 +14,8 @@ object AppReadJSONFileFs2Data extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
 
     import com.example.serialize.serialization._
-    import fs2.data.json.selector._
-
-    val stream =
+    import better.files.{Resource => BResource}
+    val stream: Stream[IO, Unit] =
       for {
         schema <- Stream(
           (new Schema.Parser).parse(
@@ -36,8 +35,9 @@ object AppReadJSONFileFs2Data extends IOApp {
               |	]
               |}""".stripMargin)
         )
+        file <- Stream(BResource.getUrl("test-data.json").getPath)
         path <- Stream(
-          Paths.get("C:\\Users\\Anil\\Google Drive\\mymooc-workspace\\jsonExample\\src\\main\\resources\\test-data-multi-line.json")
+          Paths.get(file)
         )
         res <-
           Files[IO]
@@ -46,8 +46,8 @@ object AppReadJSONFileFs2Data extends IOApp {
             .through(text.lines)
             .through(tokens[IO, String])
             .through(render.pretty())
-//            .map(json => fromJsonToAvro(json, schema))
-//            .map(avro => fromAvroToJson(avro, schema, true))
+            .map(json => fromJsonToAvro(json, schema))
+            .map(avro => fromAvroToJson(avro, schema, true))
             .map(println)
       } yield res
 

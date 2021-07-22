@@ -2,7 +2,7 @@ package com.example
 
 import better.files.{Resource, using}
 import com.example.jack.AppReadJsonJackson.readJsonFile
-import com.example.serialize.serialization.fromJsonToByteBuffer
+import com.example.serialize.serialization.{fromJsonToByteBuffer, fromJsonToByteBuffer2}
 import org.apache.avro.Schema
 import org.kitesdk.data.spi.JsonUtil
 
@@ -23,7 +23,7 @@ object App {
         using(fileInputStream) {
           fis =>
             readJsonFile(fis)
-              .map(json => fromJsonToByteBuffer(json.toString, schema))
+              .map(json => fromJsonToByteBuffer2(json.toString, schema))
               .map(x => new String(x.array(), StandardCharsets.UTF_8))
               .foreach(println)
         }

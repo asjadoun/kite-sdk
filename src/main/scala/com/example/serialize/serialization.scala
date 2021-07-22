@@ -1,17 +1,37 @@
 package com.example.serialize
 
+import better.files.{File, using}
 import org.apache.avro.Schema
+import org.apache.avro.file.DataFileWriter
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
 import org.apache.avro.io.{BinaryDecoder, BinaryEncoder, DecoderFactory, EncoderFactory, JsonDecoder, JsonEncoder}
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream}
+import java.io.{BufferedOutputStream, ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, FileOutputStream}
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 object serialization {
-  def fromJsonToByteBuffer(json: String, schema: Schema): ByteBuffer = {
+  def save(path: String, blobId: String, schema: Schema, records: List[ByteBuffer], metadata: Map[String, String]): Unit =
+    {
+      using(new DataFileWriter(new GenericDatumWriter[GenericRecord](schema)))
+      { writer =>
+        val blob = s"$path/$blobId"
+        File(blob).createFileIfNotExists(createParents = true)
+        metadata.foreach {case (k, v) => writer.setMeta(k, v)}
+        val bos = new BufferedOutputStream(new FileOutputStream(blob))
+        writer.create(schema, bos)
+        records.foreach(record => writer.appendEncoded(record))
+        bos.flush()
+      }
+    }
+  def fromJsonToByteBuffer2(json: String, schema: Schema): ByteBuffer = {
     val record: GenericRecord = fromJsonToGenericRecord(json, schema: Schema)
     val bytes: Array[Byte] = record.toString.getBytes(StandardCharsets.UTF_8)
+    val buf: ByteBuffer = ByteBuffer.wrap(bytes)
+    buf
+  }
+  def fromJsonToByteBuffer(json: String, schema: Schema): ByteBuffer = {
+    val bytes: Array[Byte] = fromJsonToAvro(json, schema: Schema)
     val buf: ByteBuffer = ByteBuffer.wrap(bytes)
     buf
   }
@@ -44,7 +64,8 @@ object serialization {
         jsonWriter.write(genericRecord, binaryEncoder)
         binaryEncoder.flush()
 
-        outputStream.toByteArray
+        val bytes: Array[Byte] = outputStream.toByteArray
+        bytes
       } finally {
         outputStream.close()
       }
