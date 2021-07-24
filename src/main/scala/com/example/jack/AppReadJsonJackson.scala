@@ -4,18 +4,26 @@ import better.files.Resource
 import com.fasterxml.jackson.core.{JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.{JsonNode, MappingIterator}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
+import scala.jdk.CollectionConverters._
 import java.io.{FileInputStream, IOException}
 import java.util
 
 object AppReadJsonJackson {
+  def streamJsonAsScala(inputStream: FileInputStream): Iterator[JsonNode] = {
+    val mapper: JsonMapper = JsonMapper.builder().addModule(DefaultScalaModule).build()
+    val factory: JsonFactory = mapper.getFactory
+    val parser: JsonParser = factory.createParser(inputStream)
+    val list: util.Iterator[JsonNode] = parser.readValuesAs[JsonNode](classOf[JsonNode])
+    list.asScala
+  }
   def streamJson(inputStream: FileInputStream): Seq[JsonNode] = {
     val mapper = new JsonMapper()
     val factory: JsonFactory = mapper.getFactory
     val parser: JsonParser = factory.createParser(inputStream)
-
-    val list: util.Iterator[JsonNode] = parser.readValuesAs[JsonNode](classOf[JsonNode])
-    import scala.jdk.CollectionConverters._
+    val list: util.Iterator[JsonNode] = parser
+      .readValuesAs[JsonNode](classOf[JsonNode])
     list.asScala.to(LazyList)
   }
 
@@ -24,10 +32,8 @@ object AppReadJsonJackson {
     val mapper = new JsonMapper
     val it: MappingIterator[JsonNode] = mapper.readerFor(classOf[JsonNode]).readValues(inputStream)
     val nodes: LazyList[JsonNode] = try {
-      import scala.jdk.CollectionConverters._
       it.readAll().asScala.to(LazyList)
     }
-
       //        try while (it.hasNextValue) {
       //          val node: JsonNode = it.nextValue
       //          node.asText()
