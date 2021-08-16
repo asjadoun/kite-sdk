@@ -1,6 +1,7 @@
 package com.example.serialize
 
-import better.files.{File, using}
+import better.files.{File, Resource, using}
+import com.example.kite.utils.ExtendedJsonDecoder
 import org.apache.avro.Schema
 import org.apache.avro.file.DataFileWriter
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
@@ -35,6 +36,7 @@ object serialization {
     val buf: ByteBuffer = ByteBuffer.wrap(bytes)
     buf
   }
+
   def fromJsonToGenericRecord(json: String, schema: Schema): GenericRecord = {
     val inputStream = new ByteArrayInputStream(json.getBytes)
     try {
@@ -42,6 +44,8 @@ object serialization {
 
       try {
         val jsonDecoder: JsonDecoder = DecoderFactory.get.jsonDecoder(schema, dataInputStream)
+//        val jsonDecoder = new ExtendedJsonDecoder(schema, dataInputStream)
+
         val jsonReader = new GenericDatumReader[GenericRecord](schema)
         val genericRecord: GenericRecord = jsonReader.read(null, jsonDecoder)
         genericRecord

@@ -1,14 +1,14 @@
 {
   "myFieldA":1,
-  "myFieldB":"a"
+  "myFieldB":null
 }
 {
   "myFieldA":2,
-  "myFieldB":"b"
+  "myFieldB":3
 }
 {
   "myFieldA":3,
-  "myFieldB":null
+  "myFieldB":"c"
 }
 {
   "myFieldA":4,

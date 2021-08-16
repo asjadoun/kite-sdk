@@ -2,16 +2,16 @@ package com.example.jack
 
 import better.files.Resource
 import com.fasterxml.jackson.core.{JsonFactory, JsonParser}
+import com.fasterxml.jackson.databind.{JsonNode, MappingIterator}
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, MapperFeature, MappingIterator}
+import com.fasterxml.jackson.dataformat.xml.{XmlFactory, XmlMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
-import scala.jdk.CollectionConverters._
 import java.io.{FileInputStream, IOException}
 import java.util
+import scala.jdk.CollectionConverters._
 
-object AppReadJsonJackson {
-
+object AppReadXMLJackson {
   def streamJsonAsScala(inputStream: FileInputStream): Iterator[JsonNode] = {
     val mapper: JsonMapper = JsonMapper.builder().addModule(DefaultScalaModule).build()
     val factory: JsonFactory = mapper.getFactory
@@ -19,29 +19,12 @@ object AppReadJsonJackson {
     val list: util.Iterator[JsonNode] = parser.readValuesAs[JsonNode](classOf[JsonNode])
     list.asScala
   }
-
-  def streamJson(inputStream: FileInputStream): LazyList[JsonNode] = {
-    val mapper = new JsonMapper.Builder(new JsonMapper)
-      .configure(JsonParser.Feature.ALLOW_COMMENTS, true)
-      .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
-      .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
-      .build()
-
-    val it: MappingIterator[JsonNode] =
-      mapper
-      .readerFor(classOf[JsonNode])
-      .readValues(inputStream)
-    it.asScala.to(LazyList)
-  }
-
-  def streamJsonAsFactory(inputStream: FileInputStream): Seq[JsonNode] = {
-    val mapper = new JsonMapper()
-    val factory: JsonFactory = mapper.getFactory
-    val parser: JsonParser = factory.createParser(inputStream)
-    val list =
-      parser
-      .readValuesAs[JsonNode](classOf[JsonNode])
-    list.asScala.to(LazyList)
+  def streamXml(inputStream: FileInputStream): Seq[String] = {
+    val mapper = new XmlMapper()
+    val node = mapper.readTree(inputStream)
+    val list1 = node.iterator()
+    val list2 = node.elements()
+    list1.asScala.map(x => x.toString).toSeq
   }
 
   def readJsonFile(inputStream: FileInputStream): LazyList[JsonNode] =
@@ -59,21 +42,18 @@ object AppReadJsonJackson {
     nodes
   }
   def main(args: Array[String]): Unit = {
-    println("Reading JSON from a file")
+    println("Reading XML from a file")
     println("----------------------------")
-    val dataFile = "test-data.json"
-//    val dataFile = "test-data-multi-line.json"
-//    val dataFile = "test-data-multi-line-array.json"
-
+    val dataFile = "test-data.xml"
     val path: String = Resource.getUrl(dataFile).getPath
     val fis = new FileInputStream(path)
     try {
-//      readJsonFile(fis)
-      streamJson(fis)
+      //      readJsonFile(fis)
+      streamXml(fis)
         .foreach(println)
     } catch {
-          case e: IOException =>
-            e.printStackTrace()
-        } finally if (fis != null) fis.close()
+      case e: IOException =>
+        e.printStackTrace()
+    } finally if (fis != null) fis.close()
   }
 }
