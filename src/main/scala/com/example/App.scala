@@ -22,7 +22,7 @@ object App {
   def main(args: Array[String]): Unit = {
     using(inputStream) {
       incoming =>
-        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 3)
+        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 4)
         println(s"${schema.toString(true)}")
 
         using(fileInputStream) {

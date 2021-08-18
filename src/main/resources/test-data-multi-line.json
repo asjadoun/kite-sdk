@@ -1,20 +1,15 @@
 {
   "myFieldA":1,
-  "myFieldB":"a"
+  "myFieldB":"a",
+  "amount": 32.99
 }
 {
   "myFieldA":2,
-  "myFieldB":"b"
+  "myFieldB":"b",
+  "amount": null
 }
 {
   "myFieldA":3,
-  "myFieldB":null
-}
-{
-  "myFieldA":4,
-  "myFieldB":"d"
-}
-{
-  "myFieldA":5,
-  "myFieldB":"e"
+  "myFieldB":"c",
+  "amount": 88
 }
