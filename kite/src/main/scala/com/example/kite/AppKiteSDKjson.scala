@@ -19,13 +19,17 @@ object AppKiteSDKjson {
     val format = Formats.AVRO
 //    val format = Formats.PARQUET
 
-    val dataFile = "test-data-multi-line-array.json"
+    //  val dataFile = "test-data.json"
+    val dataFile = "test-data-multi-line.json"
+    //  val dataFile = "test-data-multi-line-array.json"
+
     val json = JsonUtil.parse(Resource.getAsStream(dataFile))
     // this method take first record to evaluate datatype
     val schema1: Schema = JsonUtil.inferSchema(json, s"${format.getName}.schema")
     // this method take <n> records to evaluate datatype and unionize them
     val schema: Schema = JsonUtil.inferSchema(Resource.getAsStream(dataFile), "my.avro.schema", 3)
 
+    println(schema.toString(true))
     val partitionStrategy: PartitionStrategy = new PartitionStrategy.Builder()
       .identity("myFieldA")
       .build()

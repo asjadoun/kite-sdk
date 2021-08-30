@@ -2,7 +2,6 @@ package com.example.kite.utils;
 
 
 import com.example.kite.exceptions.IncompatibleSchemaException;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
@@ -10,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.avro.JsonProperties;
 import org.apache.avro.Schema;
 
 import java.nio.ByteBuffer;
@@ -563,7 +563,7 @@ public class SchemaUtil {
     }
 
     private static final Schema NULL = Schema.create(Schema.Type.NULL);
-    private static final NullNode NULL_DEFAULT = NullNode.getInstance();
+    private static final JsonProperties.Null NULL_DEFAULT = JsonProperties.NULL_VALUE;
 
     private static Schema nullableForDefault(Schema schema) {
         if (schema.getType() == Schema.Type.NULL) {
@@ -606,7 +606,7 @@ public class SchemaUtil {
                 } else {
                     fields.add(new Schema.Field(
                             leftField.name(), nullableForDefault(leftField.schema()),
-                            leftField.doc(), NULL_DEFAULT
+                            leftField.doc() , NULL_DEFAULT
                     ));
                 }
             }

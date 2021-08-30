@@ -1,12 +1,14 @@
 package com.example
 
-import better.files.{Resource, using}
+import better.files.{File, Resource, using}
 import com.example.jack.AppReadJsonJackson.streamJsonAsScala
 import com.example.kite.utils.JsonUtil
 import com.example.serialize.serialization.{fromJsonToByteBuffer, fromJsonToGenericRecord}
+import com.example.write.AvroWriter.toAvro
 import org.apache.avro.Schema
 
 import java.io.{FileInputStream, InputStream}
+import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 object App {
@@ -22,20 +24,24 @@ object App {
   def main(args: Array[String]): Unit = {
     using(inputStream) {
       incoming =>
-        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 4)
+        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 9)
         println(s"${schema.toString(true)}")
 
         using(fileInputStream) {
           fis =>
-            streamJsonAsScala(fis)
-              .map{json => println(s"Processing: $json"); json}
-              .map{json => fromJsonToGenericRecord(json.toString, schema)}
-              .map{json => println(s"Generic: $json"); (json, fromJsonToByteBuffer(json.toString, schema))}
+            val records: Iterator[ByteBuffer] = {
+              streamJsonAsScala(fis)
+              .map{json => println(s"Processing: $json"); (json, schema)}
+              .map{case(json, rSchema) => (fromJsonToGenericRecord(json.toString, rSchema), rSchema)}
+              .map{case(json, rSchema) => println(s"Generic: $json"); (json, fromJsonToByteBuffer(json.toString, rSchema))}
               .map{
-                case (rec, byte) =>
-                  (s"Byte Length: ${byte.limit()}  Byte Value: ", new String(byte.array(), StandardCharsets.UTF_8), s"GenericRecord: ${rec.toString}")
+                case (json, bytes) =>
+                  println(s"Byte Length: ${bytes.limit()}  Byte Value: ", new String(bytes.array(), StandardCharsets.UTF_8), s"GenericRecord: ${json.toString}")
+                  bytes
               }
-              .foreach(println)
+            }
+
+            toAvro(File(s"./out/avro/$dataFile.avro"), records.toList, schema)
         }
     }
 

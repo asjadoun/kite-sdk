@@ -1,0 +1,22 @@
+[
+  {
+    "myFieldA":1,
+    "myFieldB":null
+  },
+  {
+    "myFieldA":2,
+    "myFieldB":3
+  },
+  {
+    "myFieldA":3,
+    "myFieldB":"c"
+  },
+  {
+    "myFieldA":4,
+    "myFieldB":"d"
+  },
+  {
+    "myFieldA":5,
+    "myFieldB":"e"
+  }
+]
