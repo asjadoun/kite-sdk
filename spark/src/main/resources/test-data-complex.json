@@ -1,0 +1,3 @@
+{"myFieldA": 1,"metadata": {"myFieldA": 11, "myFieldB": "a"},"recordContent": {"myFieldA": 10, "myFieldB": "a10"}}
+{"myFieldA": 2,"metadata": {"myFieldA": 21, "myFieldB": "b"},"recordContent": {"myFieldA": 20, "myFieldB": "b10"}}
+{"myFieldA": 3,"metadata": {"myFieldA": 31, "myFieldB": "c"},"recordContent": {"myFieldA": 30, "myFieldB": "b10"},"myNullField": null}

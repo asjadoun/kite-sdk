@@ -1,0 +1,44 @@
+{
+  "type" : "record",
+  "name" : "topLevelRecord",
+  "fields" : [
+    {
+    "name" : "metadata",
+    "type" : [ {
+      "type" : "record",
+      "name" : "metadata",
+      "namespace" : "topLevelRecord",
+      "fields" : [ {
+        "name" : "myFieldA",
+        "type" : [ "long", "null" ]
+      },
+        {
+        "name" : "myFieldB",
+        "type" : [ "string", "null" ]
+      } ]
+    }, "null" ]
+  },
+    {
+    "name" : "myFieldA",
+    "type" : [ "long", "null" ]
+  },
+    {
+    "name" : "myNullField",
+    "type" : [ "string", "null" ]
+  },
+    {
+    "name" : "recordContent",
+    "type" : [ {
+      "type" : "record",
+      "name" : "recordContent",
+      "namespace" : "topLevelRecord",
+      "fields" : [ {
+        "name" : "myFieldA",
+        "type" : [ "long", "null" ]
+      }, {
+        "name" : "myFieldB",
+        "type" : [ "string", "null" ]
+      } ]
+    }, "null" ]
+  } ]
+}

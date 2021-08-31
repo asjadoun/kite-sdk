@@ -6,7 +6,8 @@ object App {
 
   def main(args: Array[String]): Unit = {
     println("Starting spark application...")
-      val dataFile = "test-data.json"
+//      val dataFile = "test-data.json"
+    val dataFile = "test-data-complex.json"
 //    val dataFile = "test-data-multi-line.json"
 //      val dataFile = "test-data-multi-line-array.json"
 
@@ -23,9 +24,9 @@ object App {
 
     data.show()
 
-    data.write.mode(SaveMode.Overwrite).format("csv").save("./build//test-data.csv")
-    data.write.mode(SaveMode.Overwrite).format("parquet").save("./build//test-data.parquet")
-    data.write.mode(SaveMode.Overwrite).format("avro").save("./build//test-data.avro")
+//    data.write.mode(SaveMode.Overwrite).format("csv").save("./build/test-data.csv")
+//    data.write.mode(SaveMode.Overwrite).format("parquet").save("./build/test-data.parquet")
+    data.write.mode(SaveMode.Overwrite).format("avro").save("./build/test-data.avro")
 
     spark.stop()
   }
