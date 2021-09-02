@@ -15,8 +15,11 @@
         {
         "name" : "myFieldB",
         "type" : [ "string", "null" ]
-      } ]
-    }, "null" ]
+      }
+      ]
+    },
+      "null"
+    ]
   },
     {
     "name" : "myFieldA",
@@ -27,18 +30,30 @@
     "type" : "null"
   },
     {
+      "name" : "myDefaultField",
+      "type" : ["long" ,"null"],
+      "default": 99
+    },
+    {
     "name" : "recordContent",
-    "type" : [ {
+    "type" : [
+      {
       "type" : "record",
       "name" : "recordContent",
       "namespace" : "topLevelRecord",
-      "fields" : [ {
+      "fields" : [
+        {
         "name" : "myFieldA",
         "type" : [ "long", "null" ]
-      }, {
+      },
+        {
         "name" : "myFieldB",
         "type" : [ "string", "null" ]
-      } ]
-    }, "null" ]
-  } ]
+      }
+      ]
+    },
+      "null"
+    ]
+  }
+  ]
 }

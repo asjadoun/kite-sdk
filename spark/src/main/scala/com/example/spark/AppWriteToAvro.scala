@@ -2,7 +2,7 @@ package com.example.spark
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
-object App {
+object AppWriteToAvro {
 
   def main(args: Array[String]): Unit = {
     println("Starting spark application...")
