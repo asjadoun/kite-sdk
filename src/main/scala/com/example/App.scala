@@ -14,17 +14,20 @@ import java.nio.charset.StandardCharsets
 object App {
 
 //  val dataFile = "test-data.json"
-  val dataFile = "test-data-multi-line.json"
+//  val dataFile = "test-data-multi-line.json"
 //  val dataFile = "test-data-multi-line-array.json"
+  val dataFile = "one-attribute-with-max-values.json"
 
   val path: String = Resource.getUrl(dataFile).getPath
   val inputStream: InputStream = Resource.getAsStream(dataFile)
   val fileInputStream = new FileInputStream(path)
 
+  val extSchema = Resource.getAsString("one-attribute-with-max-values.avsc")
   def main(args: Array[String]): Unit = {
     using(inputStream) {
       incoming =>
-        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 9)
+        val schema: Schema = new Schema.Parser().parse(extSchema)
+//        val schema: Schema = JsonUtil.inferSchema(incoming, "my.avro.schema", 9)
         println(s"${schema.toString(true)}")
 
         using(fileInputStream) {

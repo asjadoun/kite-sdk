@@ -1,0 +1,11 @@
+{
+  "name": "MyClass",
+  "type": "record",
+  "namespace": "com.savant.avro",
+  "fields": [
+    {
+      "name": "myFieldA",
+      "type": ["int","long","float","double"]
+    }
+  ]
+}

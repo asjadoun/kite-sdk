@@ -43,8 +43,8 @@ object serialization {
       val dataInputStream = new DataInputStream(inputStream)
 
       try {
-//        val jsonDecoder: JsonDecoder = DecoderFactory.get.jsonDecoder(schema, dataInputStream)
-        val jsonDecoder = new ExtendedJsonDecoder(schema, dataInputStream)
+        val jsonDecoder: JsonDecoder = DecoderFactory.get.jsonDecoder(schema, dataInputStream)
+//        val jsonDecoder = new ExtendedJsonDecoder(schema, dataInputStream)
 
         val jsonReader = new GenericDatumReader[GenericRecord](schema)
         val genericRecord: GenericRecord = jsonReader.read(null, jsonDecoder)
