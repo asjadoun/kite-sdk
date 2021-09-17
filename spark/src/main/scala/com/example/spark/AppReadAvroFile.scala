@@ -6,9 +6,6 @@ object AppReadAvroFile {
 
   def main(args: Array[String]): Unit = {
     println("Starting spark application...")
-      val dataFile = "test-data.json"
-//    val dataFile = "test-data-multi-line.json"
-//      val dataFile = "test-data-multi-line-array.json"
 
     val path = "./build//test-data.avro"
 
@@ -18,7 +15,12 @@ object AppReadAvroFile {
       .appName("Read avro")
       .getOrCreate()
 
-    val data = spark.read.format("avro").load(path)
+    spark.sql("set spark.sql.files.ignoreCorruptFiles=true")
+
+    val data = spark.read
+      .option("pathGlobFilter", "*.avro")
+      .format("avro")
+      .load(path)
 
     data.show()
 
